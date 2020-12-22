@@ -5,25 +5,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <liburing.h>
 
-//#include "http.h"
-//#include "logger.h"
-//#include "timer.h"
-#include "memory_pool.h"
+#include "http.h"
+#include "logger.h"
+#include "timer.h"
 #include "uring.h"
+#include "memory_pool.h"
 
 /* the length of the struct epoll_events array pointed to by *events */
 #define MAXEVENTS 1024
-#define LISTENQ 1024
 
-#define accept 0
-#define read 1
-#define write 2
-#define prov_buf 3
-#define uring_timer 4
+#define LISTENQ 1024
 
 static int open_listenfd(int port)
 {
@@ -54,32 +49,25 @@ static int open_listenfd(int port)
 
     return listenfd;
 }
-
 /* TODO: use command line options to specify */
 #define PORT 8081
 #define WEBROOT "./www"
 
 int main()
 {
-    int listenfd = open_listenfd(PORT); 
+    int listenfd = open_listenfd(PORT);
     init_memorypool();
     init_io_uring();
 
     http_request_t *req = get_request();
     add_accept_request(listenfd, req);
 
-    //struct io_uring *ring = get_ring();
-
     while(1)
     {
-        printf("QQ\n");
         submit_and_wait();
-        printf("hi\n");
-        //struct io_uring_cqe *cqe ;
-        //unsigned head;
-        //unsigned count = 0;
-        printf("QQ\n");
+        printf("ok!\n");
         break;
     }
+
     return 0;
 }

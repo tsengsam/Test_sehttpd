@@ -32,7 +32,7 @@ typedef struct {
     void *root;
     int fd;
     int epfd;
-    char *buf;
+    char buf[MAX_BUF]; /* ring buffer */
     size_t pos, last;
     int state;
     void *request_start;
@@ -47,8 +47,8 @@ typedef struct {
 
     void *timer;
     int pool_id;
-    int event_type;
     int bid;
+    int event_type;
 } http_request_t;
 
 typedef struct {
@@ -82,9 +82,10 @@ int http_close_conn(http_request_t *r);
 
 static inline void init_http_request(http_request_t *r,
                                      int fd,
+                                     int epfd,
                                      char *root)
 {
-    r->fd = fd;
+    r->fd = fd, r->epfd = epfd;
     r->pos = r->last = 0;
     r->state = 0;
     r->root = root;
@@ -92,7 +93,7 @@ static inline void init_http_request(http_request_t *r,
 }
 
 /* TODO: public functions should have conventions to prefix http_ */
-void do_request(void *infd, int n);
+void do_request(void *infd);
 
 int http_parse_request_line(http_request_t *r);
 int http_parse_request_body(http_request_t *r);

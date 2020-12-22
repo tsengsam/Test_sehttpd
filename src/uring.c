@@ -12,7 +12,7 @@
 #define prov_buf 3
 #define uring_timer 4
 
-#define Queue_Depth 16
+#define Queue_Depth 256
 #define MAX_CONNECTIONS 2048
 #define MAX_MESSAGE_LEN 8192
 char bufs[MAX_CONNECTIONS][MAX_MESSAGE_LEN] = {0};
@@ -79,7 +79,6 @@ void add_accept_request(int sockfd, http_request_t *request)
     request->event_type = accept ;
     request->fd = sockfd ;
     io_uring_sqe_set_data(sqe, request);
-    //io_uring_submit(&ring);
 }
 
 void add_read_request(http_request_t *request)
@@ -101,7 +100,6 @@ void add_read_request(http_request_t *request)
     assert(timeout_req && "malloc fault");
     timeout_req->event_type = uring_timer ;
     io_uring_sqe_set_data(sqe, timeout_req);
-    io_uring_submit(&ring);
 }
 
 void add_write_request(int fd, void *usrbuf, size_t n, http_request_t *r)
@@ -125,7 +123,6 @@ void add_write_request(int fd, void *usrbuf, size_t n, http_request_t *r)
     assert(timeout_req && "malloc fault");
     timeout_req->event_type = uring_timer ;
     io_uring_sqe_set_data(sqe, timeout_req);
-    io_uring_submit(&ring);
 }
 
 void add_provide_buf(int bid) {
@@ -135,7 +132,6 @@ void add_provide_buf(int bid) {
     assert(req && "malloc fault");
     req->event_type = prov_buf ;
     io_uring_sqe_set_data(sqe, req);
-    io_uring_submit(&ring);
 }
 
 char *get_bufs(int bid) {
